@@ -67,8 +67,6 @@ jobs:
           key: ${{ secrets.CPANEL_SSH_KEY }}
           port: 22
           script: |
-            export PATH=/opt/cpanel/ea-nodejs24/bin:/opt/cpanel/ea-nodejs22/bin:/opt/cpanel/ea-nodejs20/bin:$PATH
             cd /home/${{ secrets.CPANEL_USERNAME }}/gsv1.leeveon.com/
-            npm install --production
             mkdir -p tmp
             touch tmp/restart.txt
