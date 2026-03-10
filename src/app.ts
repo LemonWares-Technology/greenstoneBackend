@@ -9,8 +9,23 @@ import { config } from './config';
 const app: Application = express();
 
 // Security & Utility Middlewares
+app.use(cors({
+  origin: config.corsOrigin,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+}));
+
+// Diagnostic Log (Remove in production if too noisy)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    console.log(`[CORS Request] Origin: ${origin}, Method: ${req.method}`);
+  }
+  next();
+});
+
 app.use(helmet());
-app.use(cors({ origin: config.corsOrigin }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
