@@ -9,21 +9,21 @@ import { config } from './config';
 const app: Application = express();
 
 // Security & Utility Middlewares
+const allowedOrigins = config.allowedOrigins;
+
 app.use(cors({
-  origin: config.corsOrigin,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked request from origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
 }));
-
-// Diagnostic Log (Remove in production if too noisy)
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin) {
-    console.log(`[CORS Request] Origin: ${origin}, Method: ${req.method}`);
-  }
-  next();
-});
 
 app.use(helmet());
 app.use(express.json({ limit: '10mb' }));
