@@ -38,7 +38,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy'}}
 
       - name: Copy Prisma Generated to dist
-        run: cp -r generated dist/generated
+        run: cp -r src/generated dist/generated
 
       - name: Prepare Deployment Artifacts
         run: |
