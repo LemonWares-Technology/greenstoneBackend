@@ -1,0 +1,71 @@
+name: Deploy Backend to cPanel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy'}}
+
+      - name: Build Backend
+        run: pnpm build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy'}}
+
+      - name: Copy Prisma Generated to dist
+        run: cp -r generated dist/generated
+
+      - name: Prepare Deployment Artifacts
+        run: |
+          mkdir deploy_artifact
+          cp -r dist deploy_artifact/
+          cp package.json deploy_artifact/
+          cp pnpm-lock.yaml deploy_artifact/
+          cp -r prisma deploy_artifact/
+          cp prisma.config.ts deploy_artifact/
+
+      - name: Deploy to cPanel (Rsync)
+        uses: Burnett01/rsync-deployments@5.2.1
+        with:
+          switches: -avzr --delete --exclude="node_modules" --exclude=".env" --exclude="tmp" --exclude=".htaccess" --rsync-path=/usr/bin/rsync -e "ssh -p 22 -o StrictHostKeyChecking=no"
+          path: ./deploy_artifact/
+          remote_path: /home/${{ secrets.CPANEL_USERNAME }}/api.jerrypiping.com/
+          remote_host: ${{ secrets.CPANEL_HOST }}
+          remote_user: ${{ secrets.CPANEL_USERNAME }}
+          remote_key: ${{ secrets.CPANEL_SSH_KEY }}
+
+      - name: Restart App via Passenger
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: 22
+          script: |
+            cd /home/${{ secrets.CPANEL_USERNAME }}/api.jerrypiping.com/
+            mkdir -p tmp
+            touch tmp/restart.txt
