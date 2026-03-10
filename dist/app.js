@@ -13,7 +13,10 @@ const config_1 = require("./config");
 const app = (0, express_1.default)();
 // Security & Utility Middlewares
 app.use((0, cors_1.default)());
-app.use((0, helmet_1.default)());
+app.use((0, helmet_1.default)({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: false,
+}));
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
 if (config_1.config.nodeEnv === 'development') {
