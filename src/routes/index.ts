@@ -10,13 +10,15 @@ import * as team from '../controllers/team.controller';
 import * as lead from '../controllers/lead.controller';
 import * as newsletter from '../controllers/newsletter.controller';
 import * as execSummary from '../controllers/executive-summary.controller';
+import * as gallery from '../controllers/gallery.controller';
+import * as service from '../controllers/service.controller';
 import * as stats from '../controllers/stats.controller';
 
 // Validation Schemas
 import {
   loginSchema,
   createProjectSchema, createBlogSchema, createTeamSchema,
-  createLeadSchema, subscribeSchema, createExecSummarySchema,
+  createLeadSchema, subscribeSchema, createGallerySchema, createServiceSchema, createExecSummarySchema,
 } from '../schemas';
 
 const router = Router();
@@ -56,6 +58,20 @@ router.delete('/leads/:id', protect, adminOnly, lead.remove);
 router.post('/newsletters', validateRequest(subscribeSchema), newsletter.subscribe);            // Public
 router.get('/newsletters', protect, adminOnly, newsletter.getAll);
 router.delete('/newsletters/:id', protect, adminOnly, newsletter.remove);
+
+// ─── Gallery ──────────────────────────────────────────────
+router.get('/gallery', gallery.getAll);                                                            // Public
+router.get('/gallery/:id', gallery.getOne);                                                        // Public
+router.post('/gallery', protect, adminOnly, validateRequest(createGallerySchema), gallery.create);
+router.put('/gallery/:id', protect, adminOnly, gallery.update);
+router.delete('/gallery/:id', protect, adminOnly, gallery.remove);
+
+// ─── Services ─────────────────────────────────────────────
+router.get('/services', service.getAll);                                                            // Public
+router.get('/services/:id', service.getOne);                                                        // Public
+router.post('/services', protect, adminOnly, validateRequest(createServiceSchema), service.create);
+router.put('/services/:id', protect, adminOnly, service.update);
+router.delete('/services/:id', protect, adminOnly, service.remove);
 
 // ─── Executive Summary ──────────────────────────────────
 router.get('/executive-summary', execSummary.getAll);                                           // Public

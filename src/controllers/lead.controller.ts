@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../lib/prisma';
 import { handlePrismaError } from '../utils/prismaErrorHandler';
+import { notifyAdminsOfLead } from '../services/mail.service';
 
 // GET /api/leads
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
@@ -19,6 +20,12 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
     const lead = await prisma.lead.create({
       data: { name, email, phone, subject, message },
     });
+
+    // Fire-and-forget: notify admin(s) via email
+    notifyAdminsOfLead(lead).catch((err) =>
+      console.error('Failed to send lead notification email:', err)
+    );
+
     res.status(201).json({ success: true, data: lead, message: 'Thank you! We will get back to you shortly.' });
   } catch (error) {
     next(error);

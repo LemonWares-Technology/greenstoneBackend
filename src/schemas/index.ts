@@ -39,6 +39,7 @@ export const createBlogSchema = z.object({
     tags: z.array(z.string()).optional(),
     excerpt: z.string().min(1, 'Excerpt is required'),
     content: z.string().min(1, 'Content is required'),
+    sendNewsletter: z.boolean().optional(),
   }),
 });
 
@@ -67,6 +68,28 @@ export const createLeadSchema = z.object({
 export const subscribeSchema = z.object({
   body: z.object({
     email: z.string().email('Invalid email address'),
+  }),
+});
+
+// ─── Gallery ────────────────────────────────────────────
+export const createGallerySchema = z.object({
+  body: z.object({
+    url: z.string().min(1, 'Image URL is required'),
+    title: z.string().min(1, 'Title is required'),
+    category: z.string().min(1, 'Category is required'),
+    order: z.number().optional(),
+  }),
+});
+
+// ─── Service ────────────────────────────────────────────
+export const createServiceSchema = z.object({
+  body: z.object({
+    title: z.string().min(1, 'Title is required'),
+    description: z.string().min(1, 'Description is required'),
+    icon: z.string().optional(),
+    image: z.string().optional(),
+    highlights: z.array(z.string()).optional(),
+    order: z.number().optional(),
   }),
 });
 

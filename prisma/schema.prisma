@@ -75,6 +75,28 @@ model Newsletter {
   createdAt DateTime @default(now())
 }
 
+model Gallery {
+  id        String   @id @default(uuid())
+  url       String
+  title     String
+  category  String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  icon        String   @default("Building2")
+  image       String?
+  highlights  String[] @default([])
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model ExecutiveSummary {
   id        String   @id @default(uuid())
   project   String
