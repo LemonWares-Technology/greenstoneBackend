@@ -54,7 +54,7 @@ jobs:
         with:
           switches: -avzr --delete --exclude="node_modules" --exclude=".env" --exclude="tmp" --exclude=".htaccess" --rsync-path=/usr/bin/rsync -e "ssh -p 22 -o StrictHostKeyChecking=no"
           path: ./deploy_artifact/
-          remote_path: /home/${{ secrets.CPANEL_USERNAME }}/gsv1.leeveon.com/
+          remote_path: /home/${{ secrets.CPANEL_USERNAME }}/greensto/api-ldsv1.greenstoneng.com
           remote_host: ${{ secrets.CPANEL_HOST }}
           remote_user: ${{ secrets.CPANEL_USERNAME }}
           remote_key: ${{ secrets.CPANEL_SSH_KEY }}
@@ -67,6 +67,6 @@ jobs:
           key: ${{ secrets.CPANEL_SSH_KEY }}
           port: 22
           script: |
-            cd /home/${{ secrets.CPANEL_USERNAME }}/gsv1.leeveon.com/
+            cd /home/${{ secrets.CPANEL_USERNAME }}/greensto/api-ldsv1.greenstoneng.com
             mkdir -p tmp
             touch tmp/restart.txt
