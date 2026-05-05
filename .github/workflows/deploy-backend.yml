@@ -62,14 +62,28 @@ jobs:
           remote_port: 22
 
       - name: Restart App via Passenger
-        uses: appleboy/ssh-action@v1.2.5
-        with:
-          host: ${{ secrets.CPANEL_HOST }}
-          username: ${{ secrets.CPANEL_USERNAME }}
-          key: ${{ secrets.CPANEL_SSH_KEY }}
-          port: 22
-          script: |
-            cd /home/greensto/api-ldsv1.greenstoneng.com
-            mkdir -p tmp
-            touch tmp/restart.txt
-            echo "✅ Restart signal sent successfully"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+        run: |
+          set -e
+
+          # Setup SSH key securely
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/cpanel_deploy
+          chmod 600 ~/.ssh/cpanel_deploy
+          sed -i 's/\r$//' ~/.ssh/cpanel_deploy
+
+          # Restart the app using Passenger
+          ssh -i ~/.ssh/cpanel_deploy \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o UserKnownHostsFile=/dev/null \
+            -p 22 \
+            "${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }}" \
+            '
+              cd /home/greensto/api-ldsv1.greenstoneng.com &&
+              mkdir -p tmp &&
+              touch tmp/restart.txt &&
+              echo "✅ Restart signal sent successfully at $(date)"
+            '
+        shell: bash
