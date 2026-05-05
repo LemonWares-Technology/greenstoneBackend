@@ -55,7 +55,7 @@ jobs:
         with:
           switches: -avzr --delete --exclude="node_modules" --exclude=".env" --exclude=".git" --chmod=D2755,F644
           path: ./deploy_artifact/
-          remote_path: /home/greensto/api-ldsv1.greenstoneng.com/     # ← FIXED
+          remote_path: /home/greensto/api-ldsv1.greenstoneng.com/
           remote_host: ${{ secrets.CPANEL_HOST }}
           remote_user: ${{ secrets.CPANEL_USERNAME }}
           remote_key: ${{ secrets.CPANEL_SSH_KEY }}
@@ -72,3 +72,4 @@ jobs:
             cd /home/greensto/api-ldsv1.greenstoneng.com
             mkdir -p tmp
             touch tmp/restart.txt
+            echo "✅ Restart signal sent successfully"
