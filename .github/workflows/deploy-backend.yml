@@ -62,7 +62,7 @@ jobs:
           remote_port: 22
 
       - name: Restart App via Passenger
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.CPANEL_HOST }}
           username: ${{ secrets.CPANEL_USERNAME }}
