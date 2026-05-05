@@ -61,35 +61,19 @@ jobs:
           remote_key: ${{ secrets.CPANEL_SSH_KEY }}
           remote_port: 22
 
-      - name: Restart App via Passenger
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+      # No interactive SSH: cPanel often allows rsync/SFTP but denies login shells for the same key.
+      - name: Prepare Passenger restart signal
         run: |
-          set -e
+          mkdir -p restart_signal/tmp
+          touch restart_signal/tmp/restart.txt
 
-          # Write key cleanly
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/cpanel_deploy
-          chmod 600 ~/.ssh/cpanel_deploy
-
-          # Remove any Windows line endings
-          sed -i 's/\r$//' ~/.ssh/cpanel_deploy
-
-          # Add key to ssh-agent (same method used by rsync action)
-          eval $(ssh-agent -s)
-          ssh-add ~/.ssh/cpanel_deploy
-
-          echo "=== SSH Key Added Successfully ==="
-
-          # Now run the restart command
-          ssh -o StrictHostKeyChecking=accept-new \
-              -o UserKnownHostsFile=/dev/null \
-              -p 22 \
-              "${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }}" \
-              '
-                cd /home/greensto/api-ldsv1.greenstoneng.com &&
-                mkdir -p tmp &&
-                touch tmp/restart.txt &&
-                echo "✅ Restart signal sent successfully at $(date)"
-              '
-        shell: bash
+      - name: Upload restart signal (Passenger)
+        uses: Burnett01/rsync-deployments@5.2.1
+        with:
+          switches: -avz
+          path: ./restart_signal/
+          remote_path: /home/greensto/api-ldsv1.greenstoneng.com/
+          remote_host: ${{ secrets.CPANEL_HOST }}
+          remote_user: ${{ secrets.CPANEL_USERNAME }}
+          remote_key: ${{ secrets.CPANEL_SSH_KEY }}
+          remote_port: 22
