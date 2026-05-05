@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -42,7 +43,7 @@ jobs:
 
       - name: Prepare Deployment Artifacts
         run: |
-          mkdir deploy_artifact
+          mkdir -p deploy_artifact
           cp -r dist deploy_artifact/
           cp package.json deploy_artifact/
           cp pnpm-lock.yaml deploy_artifact/
@@ -52,12 +53,13 @@ jobs:
       - name: Deploy to cPanel (Rsync)
         uses: Burnett01/rsync-deployments@5.2.1
         with:
-          switches: -avzr --delete --exclude="node_modules" --exclude=".env" --exclude="tmp" --exclude=".htaccess" --rsync-path=/usr/bin/rsync -e "ssh -p 22 -o StrictHostKeyChecking=no"
+          switches: -avzr --delete --exclude="node_modules" --exclude=".env" --exclude=".git" --chmod=D2755,F644
           path: ./deploy_artifact/
-          remote_path: /home/${{ secrets.CPANEL_USERNAME }}/greensto/api-ldsv1.greenstoneng.com
+          remote_path: /home/greensto/api-ldsv1.greenstoneng.com/     # ← FIXED
           remote_host: ${{ secrets.CPANEL_HOST }}
           remote_user: ${{ secrets.CPANEL_USERNAME }}
           remote_key: ${{ secrets.CPANEL_SSH_KEY }}
+          remote_port: 22
 
       - name: Restart App via Passenger
         uses: appleboy/ssh-action@v1.0.3
@@ -67,6 +69,6 @@ jobs:
           key: ${{ secrets.CPANEL_SSH_KEY }}
           port: 22
           script: |
-            cd /home/${{ secrets.CPANEL_USERNAME }}/greensto/api-ldsv1.greenstoneng.com
+            cd /home/greensto/api-ldsv1.greenstoneng.com
             mkdir -p tmp
             touch tmp/restart.txt
