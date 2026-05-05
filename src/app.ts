@@ -8,8 +8,19 @@ import { config } from './config';
 
 const app: Application = express();
 
-// Security & Utility Middlewares
-app.use(cors());
+// Explicit origins from ALLOWED_ORIGINS (browser sends Origin on cross-site POST; OPTIONS must answer too).
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (config.allowedOrigins.includes(origin)) return callback(null, true);
+    callback(null, false);
+  },
+  credentials: true,
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
+
+app.use(cors(corsOptions));
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -22,8 +33,9 @@ if (config.nodeEnv === 'development') {
   app.use(morgan('dev'));
 }
 
-// Routes
+// Routes: canonical `/api/...`; also mount at `/` so `/auth/login` matches what many frontends call directly.
 app.use('/api', routes);
+app.use('/', routes);
 
 // Health Check
 app.get('/health', (req: Request, res: Response) => {
