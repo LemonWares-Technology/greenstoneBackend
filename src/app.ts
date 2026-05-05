@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -8,24 +8,46 @@ import { config } from './config';
 
 const app: Application = express();
 
-// Explicit origins from ALLOWED_ORIGINS (browser sends Origin on cross-site POST; OPTIONS must answer too).
+// ====================== IMPROVED CORS ======================
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (config.allowedOrigins.includes(origin)) return callback(null, true);
+
+    const allowed = config.allowedOrigins || [];
+
+    // Allow greenstoneng.com and www subdomain
+    if (origin.endsWith('.greenstoneng.com') || 
+        origin === 'https://greenstoneng.com' || 
+        origin === 'https://www.greenstoneng.com' ||
+        allowed.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Log blocked origins during development/troubleshooting
+    if (config.nodeEnv !== 'production') {
+      console.log(`[CORS Blocked] Origin: ${origin}`);
+    }
+
     callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['Authorization'],
+  maxAge: 86400, // 24 hours
 };
 
 app.use(cors(corsOptions));
 
+// Explicit OPTIONS handler (helps with some preflight issues)
+app.options('*', cors(corsOptions));
+
+// ====================== MIDDLEWARE ======================
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   crossOriginOpenerPolicy: false,
 }));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -33,9 +55,17 @@ if (config.nodeEnv === 'development') {
   app.use(morgan('dev'));
 }
 
-// Routes: canonical `/api/...`; also mount at `/` so `/auth/login` matches what many frontends call directly.
+// Debug middleware (remove after testing)
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (config.nodeEnv !== 'production') {
+    console.log(`[Request] ${req.method} ${req.path} | Origin: ${req.headers.origin}`);
+  }
+  next();
+});
+
+// ====================== ROUTES ======================
 app.use('/api', routes);
-app.use('/', routes);
+app.use('/', routes);   // For direct calls like /auth/login
 
 // Health Check
 app.get('/health', (req: Request, res: Response) => {
