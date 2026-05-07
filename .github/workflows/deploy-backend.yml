@@ -49,6 +49,7 @@ jobs:
           cp pnpm-lock.yaml deploy_artifact/
           cp -r prisma deploy_artifact/
           cp prisma.config.ts deploy_artifact/
+          cp .htaccess deploy_artifact/
 
       - name: Deploy to cPanel (Rsync)
         uses: Burnett01/rsync-deployments@5.2.1
