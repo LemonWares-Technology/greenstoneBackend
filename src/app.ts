@@ -65,7 +65,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // ====================== ROUTES ======================
 app.use('/api', routes);
-app.use('/', routes);   // For direct calls like /auth/login
+// app.use('/', routes);   // For direct calls like /auth/login
 
 // Health Check
 app.get('/health', (req: Request, res: Response) => {
