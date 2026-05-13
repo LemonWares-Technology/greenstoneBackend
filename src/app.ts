@@ -6,6 +6,10 @@ import { config } from './config';
 
 const app: Application = express();
 
+const healthCheck = (req: Request, res: Response) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+};
+
 // ====================== MIDDLEWARE ======================
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -23,13 +27,24 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // ====================== ROUTES ======================
+app.get('/', (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    message: 'Greenstone API is running',
+    health: '/health',
+    apiHealth: '/api/health',
+  });
+});
+
+app.get('/favicon.ico', (req: Request, res: Response) => {
+  res.status(204).end();
+});
+
+app.get('/health', healthCheck);
+app.get('/api/health', healthCheck);
+
 app.use('/api', routes);
 app.use('/', routes);   // Helps if cPanel mounts app at /api and strips prefix
-
-// Health Check
-app.get('/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 // 404 Handler
 app.use((req: Request, res: Response) => {

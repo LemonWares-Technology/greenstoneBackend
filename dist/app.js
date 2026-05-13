@@ -9,6 +9,9 @@ const routes_1 = __importDefault(require("./routes"));
 const errorHandler_1 = require("./middlewares/errorHandler");
 const config_1 = require("./config");
 const app = (0, express_1.default)();
+const healthCheck = (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+};
 // ====================== MIDDLEWARE ======================
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -23,12 +26,21 @@ app.use((req, res, next) => {
     next();
 });
 // ====================== ROUTES ======================
+app.get('/', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Greenstone API is running',
+        health: '/health',
+        apiHealth: '/api/health',
+    });
+});
+app.get('/favicon.ico', (req, res) => {
+    res.status(204).end();
+});
+app.get('/health', healthCheck);
+app.get('/api/health', healthCheck);
 app.use('/api', routes_1.default);
 app.use('/', routes_1.default); // Helps if cPanel mounts app at /api and strips prefix
-// Health Check
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 // 404 Handler
 app.use((req, res) => {
     res.status(404).json({ success: false, message: 'Not Found' });
