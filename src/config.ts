@@ -21,17 +21,6 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || 'greenstone-super-secret-key-change-me',
   jwtExpiresIn: '7d',
   nodeEnv: process.env.NODE_ENV || 'development',
-  
-  // Improved allowed origins
-  allowedOrigins: process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-    : [
-        'http://localhost:5174',
-        'http://localhost:5173',
-        'https://greenstoneng.com',
-        'https://www.greenstoneng.com',
-        'https://greenstone.leeveon.com'
-      ],
 
   adminEmail: process.env.ADMIN_EMAIL || 'admin@greenstoneltd.com',
   adminPassword: process.env.ADMIN_PASSWORD || 'GreenStone@2025!',

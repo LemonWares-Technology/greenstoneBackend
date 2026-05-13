@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.remove = exports.create = exports.getAll = void 0;
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const prismaErrorHandler_1 = require("../utils/prismaErrorHandler");
+const mail_service_1 = require("../services/mail.service");
 // GET /api/leads
 const getAll = async (req, res, next) => {
     try {
@@ -24,6 +25,8 @@ const create = async (req, res, next) => {
         const lead = await prisma_1.default.lead.create({
             data: { name, email, phone, subject, message },
         });
+        // Fire-and-forget: notify admin(s) via email
+        (0, mail_service_1.notifyAdminsOfLead)(lead).catch((err) => console.error('Failed to send lead notification email:', err));
         res.status(201).json({ success: true, data: lead, message: 'Thank you! We will get back to you shortly.' });
     }
     catch (error) {

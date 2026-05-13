@@ -44,6 +44,8 @@ const team = __importStar(require("../controllers/team.controller"));
 const lead = __importStar(require("../controllers/lead.controller"));
 const newsletter = __importStar(require("../controllers/newsletter.controller"));
 const execSummary = __importStar(require("../controllers/executive-summary.controller"));
+const gallery = __importStar(require("../controllers/gallery.controller"));
+const service = __importStar(require("../controllers/service.controller"));
 const stats = __importStar(require("../controllers/stats.controller"));
 // Validation Schemas
 const schemas_1 = require("../schemas");
@@ -78,6 +80,18 @@ router.delete('/leads/:id', auth_middleware_1.protect, auth_middleware_1.adminOn
 router.post('/newsletters', (0, validateRequest_1.validateRequest)(schemas_1.subscribeSchema), newsletter.subscribe); // Public
 router.get('/newsletters', auth_middleware_1.protect, auth_middleware_1.adminOnly, newsletter.getAll);
 router.delete('/newsletters/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, newsletter.remove);
+// ─── Gallery ──────────────────────────────────────────────
+router.get('/gallery', gallery.getAll); // Public
+router.get('/gallery/:id', gallery.getOne); // Public
+router.post('/gallery', auth_middleware_1.protect, auth_middleware_1.adminOnly, (0, validateRequest_1.validateRequest)(schemas_1.createGallerySchema), gallery.create);
+router.put('/gallery/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, gallery.update);
+router.delete('/gallery/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, gallery.remove);
+// ─── Services ─────────────────────────────────────────────
+router.get('/services', service.getAll); // Public
+router.get('/services/:id', service.getOne); // Public
+router.post('/services', auth_middleware_1.protect, auth_middleware_1.adminOnly, (0, validateRequest_1.validateRequest)(schemas_1.createServiceSchema), service.create);
+router.put('/services/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, service.update);
+router.delete('/services/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, service.remove);
 // ─── Executive Summary ──────────────────────────────────
 router.get('/executive-summary', execSummary.getAll); // Public
 router.post('/executive-summary', auth_middleware_1.protect, auth_middleware_1.adminOnly, (0, validateRequest_1.validateRequest)(schemas_1.createExecSummarySchema), execSummary.create);

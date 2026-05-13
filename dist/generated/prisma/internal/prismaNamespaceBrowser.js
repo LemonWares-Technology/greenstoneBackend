@@ -48,7 +48,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NullsOrder = exports.QueryMode = exports.SortOrder = exports.ExecutiveSummaryScalarFieldEnum = exports.NewsletterScalarFieldEnum = exports.LeadScalarFieldEnum = exports.TeamMemberScalarFieldEnum = exports.BlogScalarFieldEnum = exports.ProjectScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
+exports.NullsOrder = exports.QueryMode = exports.SortOrder = exports.ExecutiveSummaryScalarFieldEnum = exports.ServiceScalarFieldEnum = exports.GalleryScalarFieldEnum = exports.NewsletterScalarFieldEnum = exports.LeadScalarFieldEnum = exports.TeamMemberScalarFieldEnum = exports.BlogScalarFieldEnum = exports.ProjectScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/index-browser"));
 exports.Decimal = runtime.Decimal;
 exports.NullTypes = {
@@ -81,6 +81,8 @@ exports.ModelName = {
     TeamMember: 'TeamMember',
     Lead: 'Lead',
     Newsletter: 'Newsletter',
+    Gallery: 'Gallery',
+    Service: 'Service',
     ExecutiveSummary: 'ExecutiveSummary'
 };
 /*
@@ -147,6 +149,26 @@ exports.NewsletterScalarFieldEnum = {
     id: 'id',
     email: 'email',
     createdAt: 'createdAt'
+};
+exports.GalleryScalarFieldEnum = {
+    id: 'id',
+    url: 'url',
+    title: 'title',
+    category: 'category',
+    order: 'order',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.ServiceScalarFieldEnum = {
+    id: 'id',
+    title: 'title',
+    description: 'description',
+    icon: 'icon',
+    image: 'image',
+    highlights: 'highlights',
+    order: 'order',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
 };
 exports.ExecutiveSummaryScalarFieldEnum = {
     id: 'id',

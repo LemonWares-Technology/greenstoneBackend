@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createExecSummarySchema = exports.subscribeSchema = exports.createLeadSchema = exports.createTeamSchema = exports.createBlogSchema = exports.createProjectSchema = exports.loginSchema = exports.registerSchema = void 0;
+exports.createExecSummarySchema = exports.createServiceSchema = exports.createGallerySchema = exports.subscribeSchema = exports.createLeadSchema = exports.createTeamSchema = exports.createBlogSchema = exports.createProjectSchema = exports.loginSchema = exports.registerSchema = void 0;
 const zod_1 = require("zod");
 // ─── Auth ────────────────────────────────────────────────
 exports.registerSchema = zod_1.z.object({
@@ -38,6 +38,7 @@ exports.createBlogSchema = zod_1.z.object({
         tags: zod_1.z.array(zod_1.z.string()).optional(),
         excerpt: zod_1.z.string().min(1, 'Excerpt is required'),
         content: zod_1.z.string().min(1, 'Content is required'),
+        sendNewsletter: zod_1.z.boolean().optional(),
     }),
 });
 // ─── Team ────────────────────────────────────────────────
@@ -63,6 +64,26 @@ exports.createLeadSchema = zod_1.z.object({
 exports.subscribeSchema = zod_1.z.object({
     body: zod_1.z.object({
         email: zod_1.z.string().email('Invalid email address'),
+    }),
+});
+// ─── Gallery ────────────────────────────────────────────
+exports.createGallerySchema = zod_1.z.object({
+    body: zod_1.z.object({
+        url: zod_1.z.string().min(1, 'Image URL is required'),
+        title: zod_1.z.string().min(1, 'Title is required'),
+        category: zod_1.z.string().min(1, 'Category is required'),
+        order: zod_1.z.number().optional(),
+    }),
+});
+// ─── Service ────────────────────────────────────────────
+exports.createServiceSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        title: zod_1.z.string().min(1, 'Title is required'),
+        description: zod_1.z.string().min(1, 'Description is required'),
+        icon: zod_1.z.string().optional(),
+        image: zod_1.z.string().optional(),
+        highlights: zod_1.z.array(zod_1.z.string()).optional(),
+        order: zod_1.z.number().optional(),
     }),
 });
 // ─── Executive Summary ──────────────────────────────────

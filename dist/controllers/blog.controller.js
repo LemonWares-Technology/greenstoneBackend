@@ -7,6 +7,7 @@ exports.remove = exports.update = exports.create = exports.getOne = exports.getA
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const AppError_1 = require("../utils/AppError");
 const prismaErrorHandler_1 = require("../utils/prismaErrorHandler");
+const mail_service_1 = require("../services/mail.service");
 // GET /api/blogs
 const getAll = async (req, res, next) => {
     try {
@@ -34,11 +35,26 @@ exports.getOne = getOne;
 // POST /api/blogs (protected)
 const create = async (req, res, next) => {
     try {
-        const { title, author, role, image, tags, excerpt, content } = req.body;
+        const { title, author, role, image, tags, excerpt, content, sendNewsletter } = req.body;
         const blog = await prisma_1.default.blog.create({
             data: { title, author, role, image, tags: tags || [], excerpt, content },
         });
-        res.status(201).json({ success: true, data: blog });
+        let newsletterResult = null;
+        if (sendNewsletter) {
+            const subscribers = await prisma_1.default.newsletter.findMany({ select: { email: true } });
+            const emails = subscribers.map((s) => s.email);
+            newsletterResult = await (0, mail_service_1.sendBlogToSubscribers)(blog, emails).catch((err) => {
+                console.error('Newsletter send failed:', err);
+                return { sent: 0, failed: emails.length, skipped: false };
+            });
+        }
+        res.status(201).json({
+            success: true,
+            data: blog,
+            message: newsletterResult
+                ? `Blog published! Newsletter sent to ${newsletterResult.sent} subscriber(s).`
+                : 'Blog post published!',
+        });
     }
     catch (error) {
         next(error);
