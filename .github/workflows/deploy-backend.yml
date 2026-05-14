@@ -54,7 +54,7 @@ jobs:
       - name: Deploy to cPanel (Rsync)
         uses: Burnett01/rsync-deployments@5.2.1
         with:
-          switches: -avzr --delete --exclude="node_modules" --exclude=".env" --exclude=".git" --exclude=".htaccess" --exclude="tmp" --chmod=D2755,F644
+          switches: -avzr --delete --exclude="node_modules" --exclude=".env" --exclude=".git" --exclude=".htaccess" --exclude="tmp" --exclude="upload" --chmod=D2755,F644
           path: ./deploy_artifact/
           remote_path: /home/greensto/api-ldsv1.greenstoneng.com/
           remote_host: ${{ secrets.CPANEL_HOST }}

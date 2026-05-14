@@ -13,6 +13,8 @@ import * as execSummary from '../controllers/executive-summary.controller';
 import * as gallery from '../controllers/gallery.controller';
 import * as service from '../controllers/service.controller';
 import * as stats from '../controllers/stats.controller';
+import * as upload from '../controllers/upload.controller';
+import { imageUpload } from '../middlewares/upload.middleware';
 
 // Validation Schemas
 import {
@@ -27,19 +29,20 @@ const router = Router();
 // Registration is disabled — admin is seeded from .env on startup.
 router.post('/auth/login', validateRequest(loginSchema), auth.login);
 router.get('/auth/me', protect, auth.getMe);
+router.post('/upload', protect, adminOnly, imageUpload.single('image'), upload.handleUploadError, upload.uploadImage);
 
 // ─── Projects ────────────────────────────────────────────
 router.get('/projects', project.getAll);                                                        // Public
 router.get('/projects/:id', project.getOne);                                                    // Public
-router.post('/projects', protect, adminOnly, validateRequest(createProjectSchema), project.create);
-router.put('/projects/:id', protect, adminOnly, project.update);
+router.post('/projects', protect, adminOnly, imageUpload.fields([{ name: 'image', maxCount: 1 }, { name: 'gallery', maxCount: 20 }]), upload.handleUploadError, validateRequest(createProjectSchema), project.create);
+router.put('/projects/:id', protect, adminOnly, imageUpload.fields([{ name: 'image', maxCount: 1 }, { name: 'gallery', maxCount: 20 }]), upload.handleUploadError, project.update);
 router.delete('/projects/:id', protect, adminOnly, project.remove);
 
 // ─── Blogs ───────────────────────────────────────────────
 router.get('/blogs', blog.getAll);                                                              // Public
 router.get('/blogs/:id', blog.getOne);                                                          // Public
-router.post('/blogs', protect, adminOnly, validateRequest(createBlogSchema), blog.create);
-router.put('/blogs/:id', protect, adminOnly, blog.update);
+router.post('/blogs', protect, adminOnly, imageUpload.single('image'), upload.handleUploadError, validateRequest(createBlogSchema), blog.create);
+router.put('/blogs/:id', protect, adminOnly, imageUpload.single('image'), upload.handleUploadError, blog.update);
 router.delete('/blogs/:id', protect, adminOnly, blog.remove);
 
 // ─── Team ────────────────────────────────────────────────
@@ -62,15 +65,15 @@ router.delete('/newsletters/:id', protect, adminOnly, newsletter.remove);
 // ─── Gallery ──────────────────────────────────────────────
 router.get('/gallery', gallery.getAll);                                                            // Public
 router.get('/gallery/:id', gallery.getOne);                                                        // Public
-router.post('/gallery', protect, adminOnly, validateRequest(createGallerySchema), gallery.create);
-router.put('/gallery/:id', protect, adminOnly, gallery.update);
+router.post('/gallery', protect, adminOnly, imageUpload.single('image'), upload.handleUploadError, validateRequest(createGallerySchema), gallery.create);
+router.put('/gallery/:id', protect, adminOnly, imageUpload.single('image'), upload.handleUploadError, gallery.update);
 router.delete('/gallery/:id', protect, adminOnly, gallery.remove);
 
 // ─── Services ─────────────────────────────────────────────
 router.get('/services', service.getAll);                                                            // Public
 router.get('/services/:id', service.getOne);                                                        // Public
-router.post('/services', protect, adminOnly, validateRequest(createServiceSchema), service.create);
-router.put('/services/:id', protect, adminOnly, service.update);
+router.post('/services', protect, adminOnly, imageUpload.single('image'), upload.handleUploadError, validateRequest(createServiceSchema), service.create);
+router.put('/services/:id', protect, adminOnly, imageUpload.single('image'), upload.handleUploadError, service.update);
 router.delete('/services/:id', protect, adminOnly, service.remove);
 
 // ─── Executive Summary ──────────────────────────────────

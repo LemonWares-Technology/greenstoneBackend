@@ -5,10 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
 const morgan_1 = __importDefault(require("morgan"));
 const routes_1 = __importDefault(require("./routes"));
 const errorHandler_1 = require("./middlewares/errorHandler");
 const config_1 = require("./config");
+const upload_middleware_1 = require("./middlewares/upload.middleware");
 const app = (0, express_1.default)();
 const healthCheck = (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -17,6 +19,7 @@ const healthCheck = (req, res) => {
 app.use((0, cors_1.default)());
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use('/upload', express_1.default.static(path_1.default.resolve(upload_middleware_1.uploadDir)));
 if (config_1.config.nodeEnv === 'development') {
     app.use((0, morgan_1.default)('dev'));
 }

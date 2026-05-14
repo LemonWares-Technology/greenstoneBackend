@@ -7,6 +7,7 @@ exports.remove = exports.update = exports.create = exports.getOne = exports.getA
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const AppError_1 = require("../utils/AppError");
 const prismaErrorHandler_1 = require("../utils/prismaErrorHandler");
+const uploadHelpers_1 = require("../utils/uploadHelpers");
 // GET /api/services
 const getAll = async (req, res, next) => {
     try {
@@ -35,12 +36,22 @@ exports.getOne = getOne;
 const create = async (req, res, next) => {
     try {
         const { title, description, icon, image, highlights, order } = req.body;
+        const imageUrl = (0, uploadHelpers_1.fileToUrl)(req.file) ?? image;
         const service = await prisma_1.default.service.create({
-            data: { title, description, icon: icon ?? 'Building2', image, highlights: highlights ?? [], order: order ?? 0 },
+            data: {
+                title,
+                description,
+                icon: icon ?? 'Building2',
+                image: imageUrl,
+                highlights: (0, uploadHelpers_1.parseStringArray)(highlights),
+                order: (0, uploadHelpers_1.parseOptionalNumber)(order) ?? 0,
+            },
         });
         res.status(201).json({ success: true, data: service });
     }
     catch (error) {
+        if (req.file)
+            (0, uploadHelpers_1.cleanupUploadedFiles)([req.file]);
         next(error);
     }
 };
@@ -49,13 +60,23 @@ exports.create = create;
 const update = async (req, res, next) => {
     try {
         const { title, description, icon, image, highlights, order } = req.body;
+        const imageUrl = (0, uploadHelpers_1.fileToUrl)(req.file) ?? image;
         const service = await prisma_1.default.service.update({
             where: { id: req.params.id },
-            data: { title, description, icon, image, highlights, order },
+            data: {
+                title,
+                description,
+                icon,
+                image: imageUrl,
+                highlights: highlights === undefined ? undefined : (0, uploadHelpers_1.parseStringArray)(highlights),
+                order: (0, uploadHelpers_1.parseOptionalNumber)(order),
+            },
         });
         res.json({ success: true, data: service });
     }
     catch (error) {
+        if (req.file)
+            (0, uploadHelpers_1.cleanupUploadedFiles)([req.file]);
         (0, prismaErrorHandler_1.handlePrismaError)(error, 'Service');
     }
 };

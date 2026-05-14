@@ -1,6 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodTypeAny, ZodError } from 'zod';
-import { AppError } from '../utils/AppError';
+import { cleanupUploadedFiles } from '../utils/uploadHelpers';
+
+const getUploadedFiles = (req: Request) => {
+  const files: Express.Multer.File[] = [];
+  if (req.file) files.push(req.file);
+  if (Array.isArray(req.files)) files.push(...req.files);
+  if (req.files && !Array.isArray(req.files)) {
+    files.push(...Object.values(req.files).flat());
+  }
+  return files;
+};
 
 export const validateRequest =
   (schema: ZodTypeAny) =>
@@ -14,6 +24,8 @@ export const validateRequest =
       return next();
     } catch (error) {
       if (error instanceof ZodError) {
+        cleanupUploadedFiles(getUploadedFiles(req));
+
         // Format Zod errors
         const errors = error.issues.map((e: any) => ({
           path: e.path.join('.'),

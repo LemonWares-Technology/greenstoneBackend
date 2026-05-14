@@ -8,6 +8,7 @@ const prisma_1 = __importDefault(require("../lib/prisma"));
 const AppError_1 = require("../utils/AppError");
 const prismaErrorHandler_1 = require("../utils/prismaErrorHandler");
 const mail_service_1 = require("../services/mail.service");
+const uploadHelpers_1 = require("../utils/uploadHelpers");
 // GET /api/blogs
 const getAll = async (req, res, next) => {
     try {
@@ -36,11 +37,14 @@ exports.getOne = getOne;
 const create = async (req, res, next) => {
     try {
         const { title, author, role, image, tags, excerpt, content, sendNewsletter } = req.body;
+        const imageUrl = (0, uploadHelpers_1.fileToUrl)(req.file) ?? image;
+        if (!imageUrl)
+            throw new AppError_1.AppError('Image file or URL is required.', 400);
         const blog = await prisma_1.default.blog.create({
-            data: { title, author, role, image, tags: tags || [], excerpt, content },
+            data: { title, author, role, image: imageUrl, tags: (0, uploadHelpers_1.parseStringArray)(tags), excerpt, content },
         });
         let newsletterResult = null;
-        if (sendNewsletter) {
+        if ((0, uploadHelpers_1.parseOptionalBoolean)(sendNewsletter)) {
             const subscribers = await prisma_1.default.newsletter.findMany({ select: { email: true } });
             const emails = subscribers.map((s) => s.email);
             newsletterResult = await (0, mail_service_1.sendBlogToSubscribers)(blog, emails).catch((err) => {
@@ -57,6 +61,8 @@ const create = async (req, res, next) => {
         });
     }
     catch (error) {
+        if (req.file)
+            (0, uploadHelpers_1.cleanupUploadedFiles)([req.file]);
         next(error);
     }
 };
@@ -65,13 +71,24 @@ exports.create = create;
 const update = async (req, res, next) => {
     try {
         const { title, author, role, image, tags, excerpt, content } = req.body;
+        const imageUrl = (0, uploadHelpers_1.fileToUrl)(req.file) ?? image;
         const blog = await prisma_1.default.blog.update({
             where: { id: req.params.id },
-            data: { title, author, role, image, tags, excerpt, content },
+            data: {
+                title,
+                author,
+                role,
+                image: imageUrl,
+                tags: tags === undefined ? undefined : (0, uploadHelpers_1.parseStringArray)(tags),
+                excerpt,
+                content,
+            },
         });
         res.json({ success: true, data: blog });
     }
     catch (error) {
+        if (req.file)
+            (0, uploadHelpers_1.cleanupUploadedFiles)([req.file]);
         (0, prismaErrorHandler_1.handlePrismaError)(error, 'Blog post');
     }
 };

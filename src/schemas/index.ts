@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+const numberLike = z.union([z.number(), z.string().regex(/^-?\d+(\.\d+)?$/)]).optional();
+const stringArrayLike = z.union([z.array(z.string()), z.string()]).optional();
+const booleanLike = z.union([z.boolean(), z.string()]).optional();
+
 // ─── Auth ────────────────────────────────────────────────
 export const registerSchema = z.object({
   body: z.object({
@@ -24,8 +28,8 @@ export const createProjectSchema = z.object({
     description: z.string().min(1, 'Description is required'),
     status: z.string().min(1, 'Status is required'),
     value: z.string().optional(),
-    image: z.string().min(1, 'Image is required'),
-    gallery: z.array(z.string()).optional(),
+    image: z.string().min(1, 'Image is required').optional(),
+    gallery: stringArrayLike,
   }),
 });
 
@@ -35,11 +39,11 @@ export const createBlogSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     author: z.string().min(1, 'Author is required'),
     role: z.string().min(1, 'Role is required'),
-    image: z.string().min(1, 'Image is required'),
-    tags: z.array(z.string()).optional(),
+    image: z.string().min(1, 'Image is required').optional(),
+    tags: stringArrayLike,
     excerpt: z.string().min(1, 'Excerpt is required'),
     content: z.string().min(1, 'Content is required'),
-    sendNewsletter: z.boolean().optional(),
+    sendNewsletter: booleanLike,
   }),
 });
 
@@ -49,7 +53,7 @@ export const createTeamSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     role: z.string().min(1, 'Role is required'),
     bio: z.string().min(1, 'Bio is required'),
-    order: z.number().optional(),
+    order: numberLike,
   }),
 });
 
@@ -73,13 +77,12 @@ export const subscribeSchema = z.object({
 
 // ─── Gallery ────────────────────────────────────────────
 export const createGallerySchema = z.object({
-  body: z.object({
-    url: z.string().min(1, 'Image URL is required'),
-    title: z.string().min(1, 'Title is required'),
-    category: z.string().min(1, 'Category is required'),
-    order: z.number().optional(),
-  }),
+  url: z.string().min(1, 'Image URL is required').optional(),
+  title: z.string().min(1, 'Title is required'),
+  category: z.string().min(1, 'Category is required'),
+  order: numberLike.optional(),
 });
+
 
 // ─── Service ────────────────────────────────────────────
 export const createServiceSchema = z.object({
@@ -88,8 +91,8 @@ export const createServiceSchema = z.object({
     description: z.string().min(1, 'Description is required'),
     icon: z.string().optional(),
     image: z.string().optional(),
-    highlights: z.array(z.string()).optional(),
-    order: z.number().optional(),
+    highlights: stringArrayLike,
+    order: numberLike,
   }),
 });
 
@@ -100,6 +103,6 @@ export const createExecSummarySchema = z.object({
     loc: z.string().min(1, 'Location is required'),
     status: z.string().min(1, 'Status is required'),
     val: z.string().optional(),
-    order: z.number().optional(),
+    order: numberLike,
   }),
 });

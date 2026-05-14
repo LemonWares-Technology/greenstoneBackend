@@ -47,6 +47,8 @@ const execSummary = __importStar(require("../controllers/executive-summary.contr
 const gallery = __importStar(require("../controllers/gallery.controller"));
 const service = __importStar(require("../controllers/service.controller"));
 const stats = __importStar(require("../controllers/stats.controller"));
+const upload = __importStar(require("../controllers/upload.controller"));
+const upload_middleware_1 = require("../middlewares/upload.middleware");
 // Validation Schemas
 const schemas_1 = require("../schemas");
 const router = (0, express_1.Router)();
@@ -54,17 +56,18 @@ const router = (0, express_1.Router)();
 // Registration is disabled — admin is seeded from .env on startup.
 router.post('/auth/login', (0, validateRequest_1.validateRequest)(schemas_1.loginSchema), auth.login);
 router.get('/auth/me', auth_middleware_1.protect, auth.getMe);
+router.post('/upload', auth_middleware_1.protect, auth_middleware_1.adminOnly, upload_middleware_1.imageUpload.single('image'), upload.handleUploadError, upload.uploadImage);
 // ─── Projects ────────────────────────────────────────────
 router.get('/projects', project.getAll); // Public
 router.get('/projects/:id', project.getOne); // Public
-router.post('/projects', auth_middleware_1.protect, auth_middleware_1.adminOnly, (0, validateRequest_1.validateRequest)(schemas_1.createProjectSchema), project.create);
-router.put('/projects/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, project.update);
+router.post('/projects', auth_middleware_1.protect, auth_middleware_1.adminOnly, upload_middleware_1.imageUpload.fields([{ name: 'image', maxCount: 1 }, { name: 'gallery', maxCount: 20 }]), upload.handleUploadError, (0, validateRequest_1.validateRequest)(schemas_1.createProjectSchema), project.create);
+router.put('/projects/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, upload_middleware_1.imageUpload.fields([{ name: 'image', maxCount: 1 }, { name: 'gallery', maxCount: 20 }]), upload.handleUploadError, project.update);
 router.delete('/projects/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, project.remove);
 // ─── Blogs ───────────────────────────────────────────────
 router.get('/blogs', blog.getAll); // Public
 router.get('/blogs/:id', blog.getOne); // Public
-router.post('/blogs', auth_middleware_1.protect, auth_middleware_1.adminOnly, (0, validateRequest_1.validateRequest)(schemas_1.createBlogSchema), blog.create);
-router.put('/blogs/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, blog.update);
+router.post('/blogs', auth_middleware_1.protect, auth_middleware_1.adminOnly, upload_middleware_1.imageUpload.single('image'), upload.handleUploadError, (0, validateRequest_1.validateRequest)(schemas_1.createBlogSchema), blog.create);
+router.put('/blogs/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, upload_middleware_1.imageUpload.single('image'), upload.handleUploadError, blog.update);
 router.delete('/blogs/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, blog.remove);
 // ─── Team ────────────────────────────────────────────────
 router.get('/team', team.getAll); // Public
@@ -83,14 +86,14 @@ router.delete('/newsletters/:id', auth_middleware_1.protect, auth_middleware_1.a
 // ─── Gallery ──────────────────────────────────────────────
 router.get('/gallery', gallery.getAll); // Public
 router.get('/gallery/:id', gallery.getOne); // Public
-router.post('/gallery', auth_middleware_1.protect, auth_middleware_1.adminOnly, (0, validateRequest_1.validateRequest)(schemas_1.createGallerySchema), gallery.create);
-router.put('/gallery/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, gallery.update);
+router.post('/gallery', auth_middleware_1.protect, auth_middleware_1.adminOnly, upload_middleware_1.imageUpload.single('image'), upload.handleUploadError, (0, validateRequest_1.validateRequest)(schemas_1.createGallerySchema), gallery.create);
+router.put('/gallery/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, upload_middleware_1.imageUpload.single('image'), upload.handleUploadError, gallery.update);
 router.delete('/gallery/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, gallery.remove);
 // ─── Services ─────────────────────────────────────────────
 router.get('/services', service.getAll); // Public
 router.get('/services/:id', service.getOne); // Public
-router.post('/services', auth_middleware_1.protect, auth_middleware_1.adminOnly, (0, validateRequest_1.validateRequest)(schemas_1.createServiceSchema), service.create);
-router.put('/services/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, service.update);
+router.post('/services', auth_middleware_1.protect, auth_middleware_1.adminOnly, upload_middleware_1.imageUpload.single('image'), upload.handleUploadError, (0, validateRequest_1.validateRequest)(schemas_1.createServiceSchema), service.create);
+router.put('/services/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, upload_middleware_1.imageUpload.single('image'), upload.handleUploadError, service.update);
 router.delete('/services/:id', auth_middleware_1.protect, auth_middleware_1.adminOnly, service.remove);
 // ─── Executive Summary ──────────────────────────────────
 router.get('/executive-summary', execSummary.getAll); // Public

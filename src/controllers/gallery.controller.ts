@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import prisma from '../lib/prisma';
 import { AppError } from '../utils/AppError';
 import { handlePrismaError } from '../utils/prismaErrorHandler';
+import { cleanupUploadedFiles, fileToUrl, parseOptionalNumber } from '../utils/uploadHelpers';
 
 // GET /api/gallery
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,11 +29,15 @@ export const getOne = async (req: Request, res: Response, next: NextFunction) =>
 export const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { url, title, category, order } = req.body;
+    const imageUrl = fileToUrl(req.file) ?? url;
+    if (!imageUrl) throw new AppError('Image file or URL is required.', 400);
+
     const image = await prisma.gallery.create({
-      data: { url, title, category, order: order ?? 0 },
+      data: { url: imageUrl, title, category, order: parseOptionalNumber(order) ?? 0 },
     });
     res.status(201).json({ success: true, data: image });
   } catch (error) {
+    if (req.file) cleanupUploadedFiles([req.file]);
     next(error);
   }
 };
@@ -41,12 +46,14 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
 export const update = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { url, title, category, order } = req.body;
+    const imageUrl = fileToUrl(req.file) ?? url;
     const image = await prisma.gallery.update({
       where: { id: req.params.id as string },
-      data: { url, title, category, order },
+      data: { url: imageUrl, title, category, order: parseOptionalNumber(order) },
     });
     res.json({ success: true, data: image });
   } catch (error) {
+    if (req.file) cleanupUploadedFiles([req.file]);
     handlePrismaError(error, 'Gallery image');
   }
 };

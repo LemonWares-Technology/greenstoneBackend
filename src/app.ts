@@ -1,9 +1,11 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import path from 'path';
 import morgan from 'morgan';
 import routes from './routes';
 import { errorHandler } from './middlewares/errorHandler';
 import { config } from './config';
+import { uploadDir } from './middlewares/upload.middleware';
 
 const app: Application = express();
 
@@ -15,6 +17,7 @@ const healthCheck = (req: Request, res: Response) => {
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use('/upload', express.static(path.resolve(uploadDir)));
 
 if (config.nodeEnv === 'development') {
   app.use(morgan('dev'));
