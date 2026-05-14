@@ -22,39 +22,33 @@ export const loginSchema = z.object({
 
 // ─── Project ─────────────────────────────────────────────
 export const createProjectSchema = z.object({
-  body: z.object({
-    name: z.string().min(1, 'Project name is required'),
-    location: z.string().min(1, 'Location is required'),
-    description: z.string().min(1, 'Description is required'),
-    status: z.string().min(1, 'Status is required'),
-    value: z.string().optional(),
-    image: z.string().min(1, 'Image is required').optional(),
-    gallery: stringArrayLike,
-  }),
+  name: z.string().min(1, 'Project name is required'),
+  location: z.string().min(1, 'Location is required'),
+  description: z.string().min(1, 'Description is required'),
+  status: z.string().min(1, 'Status is required'),
+  value: z.string().optional(),
+  image: z.string().min(1, 'Image is required').optional(),
+  gallery: stringArrayLike,
 });
 
 // ─── Blog ────────────────────────────────────────────────
 export const createBlogSchema = z.object({
-  body: z.object({
-    title: z.string().min(1, 'Title is required'),
-    author: z.string().min(1, 'Author is required'),
-    role: z.string().min(1, 'Role is required'),
-    image: z.string().min(1, 'Image is required').optional(),
-    tags: stringArrayLike,
-    excerpt: z.string().min(1, 'Excerpt is required'),
-    content: z.string().min(1, 'Content is required'),
-    sendNewsletter: booleanLike,
-  }),
+  title: z.string().min(1, 'Title is required'),
+  author: z.string().min(1, 'Author is required'),
+  role: z.string().min(1, 'Role is required'),
+  image: z.string().min(1, 'Image is required').optional(),
+  tags: stringArrayLike,
+  excerpt: z.string().min(1, 'Excerpt is required'),
+  content: z.string().min(1, 'Content is required'),
+  sendNewsletter: booleanLike,
 });
 
 // ─── Team ────────────────────────────────────────────────
 export const createTeamSchema = z.object({
-  body: z.object({
-    name: z.string().min(1, 'Name is required'),
-    role: z.string().min(1, 'Role is required'),
-    bio: z.string().min(1, 'Bio is required'),
-    order: numberLike,
-  }),
+  name: z.string().min(1, 'Name is required'),
+  role: z.string().min(1, 'Role is required'),
+  bio: z.string().min(1, 'Bio is required'),
+  order: numberLike,
 });
 
 // ─── Lead ────────────────────────────────────────────────
@@ -86,14 +80,12 @@ export const createGallerySchema = z.object({
 
 // ─── Service ────────────────────────────────────────────
 export const createServiceSchema = z.object({
-  body: z.object({
-    title: z.string().min(1, 'Title is required'),
-    description: z.string().min(1, 'Description is required'),
-    icon: z.string().optional(),
-    image: z.string().optional(),
-    highlights: stringArrayLike,
-    order: numberLike,
-  }),
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  icon: z.string().optional(),
+  image: z.string().optional(),
+  highlights: stringArrayLike,
+  order: numberLike,
 });
 
 // ─── Executive Summary ──────────────────────────────────

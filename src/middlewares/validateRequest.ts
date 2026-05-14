@@ -16,11 +16,27 @@ export const validateRequest =
   (schema: ZodTypeAny) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await schema.parseAsync({
-        body: req.body,
-        query: req.query,
-        params: req.params,
-      });
+      // Check if schema is a ZodObject and has a 'body' key in its shape
+      let hasBodyWrapper = false;
+      if (schema && typeof schema === 'object' && 'shape' in schema) {
+        const shape = (schema as any).shape;
+        if (typeof shape === 'object' && shape !== null && 'body' in shape) {
+          hasBodyWrapper = true;
+        }
+      }
+
+      let dataToValidate;
+      if (hasBodyWrapper) {
+        dataToValidate = {
+          body: req.body,
+          query: req.query,
+          params: req.params,
+        };
+      } else {
+        dataToValidate = req.body;
+      }
+
+      await schema.parseAsync(dataToValidate);
       return next();
     } catch (error) {
       if (error instanceof ZodError) {
