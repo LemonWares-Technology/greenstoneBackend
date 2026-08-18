@@ -19,7 +19,7 @@ import { imageUpload } from '../middlewares/upload.middleware';
 // Validation Schemas
 import {
   loginSchema,
-  createProjectSchema, createBlogSchema, createTeamSchema,
+  createProjectSchema, createBlogSchema, createTeamSchema, updateTeamStatusSchema,
   createLeadSchema, subscribeSchema, createGallerySchema, createServiceSchema, createExecSummarySchema,
 } from '../schemas';
 
@@ -46,10 +46,14 @@ router.put('/blogs/:id', protect, adminOnly, imageUpload.single('image'), upload
 router.delete('/blogs/:id', protect, adminOnly, blog.remove);
 
 // ─── Team ────────────────────────────────────────────────
-router.get('/team', team.getAll);                                                               // Public
-router.get('/team/:id', team.getOne);                                                           // Public
+// NOTE: the /team/admin routes must be declared before /team/:id so they are not swallowed by it.
+router.get('/team/admin', protect, adminOnly, team.getAllAdmin);                                // Drafts included
+router.get('/team/admin/:id', protect, adminOnly, team.getOneAdmin);                            // Drafts included
+router.get('/team', team.getAll);                                                               // Public (published only)
+router.get('/team/:id', team.getOne);                                                           // Public (published only)
 router.post('/team', protect, adminOnly, validateRequest(createTeamSchema), team.create);
 router.put('/team/:id', protect, adminOnly, team.update);
+router.patch('/team/:id/status', protect, adminOnly, validateRequest(updateTeamStatusSchema), team.updateStatus);
 router.delete('/team/:id', protect, adminOnly, team.remove);
 
 // ─── Leads (Contact Form) ───────────────────────────────

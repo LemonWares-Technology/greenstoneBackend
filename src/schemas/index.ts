@@ -44,11 +44,23 @@ export const createBlogSchema = z.object({
 });
 
 // ─── Team ────────────────────────────────────────────────
+export const teamStatusValues = ['DRAFT', 'PUBLISHED'] as const;
+export type TeamStatus = (typeof teamStatusValues)[number];
+
+const teamStatusLike = z
+  .enum(teamStatusValues, { message: 'Status must be either DRAFT or PUBLISHED' })
+  .optional();
+
 export const createTeamSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   role: z.string().min(1, 'Role is required'),
   bio: z.string().min(1, 'Bio is required'),
   order: numberLike,
+  status: teamStatusLike,
+});
+
+export const updateTeamStatusSchema = z.object({
+  status: z.enum(teamStatusValues, { message: 'Status must be either DRAFT or PUBLISHED' }),
 });
 
 // ─── Lead ────────────────────────────────────────────────
